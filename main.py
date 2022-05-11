@@ -1,3 +1,5 @@
+import math
+
 import arcade
 
 import config as cfg
@@ -14,6 +16,7 @@ class Game(arcade.Window):
         arcade.set_background_color(cfg.bg_color)
         self.maze_generator = None
         self.path = None
+        self.maze_iterations_per_frame = math.ceil(cfg.maze_width * cfg.maze_height / (60 * cfg.max_generation_time))
 
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == arcade.key.ESCAPE:
@@ -30,11 +33,15 @@ class Game(arcade.Window):
         self.draw_path()
 
     def on_update(self, delta_time: float):
+        self.update_maze()
+
+    def update_maze(self):
         if self.is_generating:
             try:
-                old_x, old_y, x, y = next(self.maze_generator)
-                self.maze.remove_wall(old_x, old_y, x, y)
-                self.maze.grid[x][y] = True
+                for _ in range(self.maze_iterations_per_frame):
+                    old_x, old_y, x, y = next(self.maze_generator)
+                    self.maze.remove_wall(old_x, old_y, x, y)
+                    self.maze.grid[x][y] = True
             except StopIteration:
                 self.is_generating = False
                 self.is_maze_generated = True
