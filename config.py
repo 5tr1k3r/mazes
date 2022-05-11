@@ -12,6 +12,8 @@ maze_height = cc.get('maze_height', 20)
 
 cell_size = cc.get('cell_size', 25)
 wall_width = cc.get('wall_width', 5)
+path_width = cc.get('path_width', 8)
 
 bg_color = arcade.color.BLACK
 cell_color = arcade.color.WHITE
+path_color = arcade.color.GREEN

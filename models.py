@@ -1,9 +1,12 @@
 import random
-from typing import List, Tuple
+from typing import List, Tuple, Optional, Set
+
 import config as cfg
 
 Coords = Tuple[float, float]
 LineCoords = Tuple[float, float, float, float]
+Node = Tuple[int, int]
+FullPath = List[Node]
 
 
 class Maze:
@@ -114,3 +117,63 @@ class Maze:
             curr_y += cfg.cell_size + cfg.wall_width
 
         return coords
+
+    def find_path(self,
+                  start: Optional[Node] = None,
+                  end: Optional[Node] = None) -> FullPath:
+        if start is None:
+            start = (0, 0)
+
+        if end is None:
+            end = (self.height - 1, self.width - 1)
+
+        # currently there will only be one path that is produced
+        # but decided to kinda future-proof it
+        # and look for the shortest path anyway
+        shortest_path = []
+        shortest_path_length = float('inf')
+        for path in self.dfs_paths(start, end):
+            if len(path) < shortest_path_length:
+                shortest_path_length = len(path)
+                shortest_path = path
+
+        return shortest_path
+
+    def dfs_paths(self, start: Node, end: Node, path=None):
+        if path is None:
+            path = [start]
+        if path[-1] == end:
+            yield path
+            return
+        for field in self.get_candidates(start, path):
+            yield from self.dfs_paths(field, end, path + [field])
+
+    def get_neighbors(self, node: Node) -> Set[Node]:
+        x, y = node
+        all_neighbors = [(x - 1, y), (x, y + 1), (x + 1, y), (x, y - 1)]
+
+        return {(x, y) for x, y in all_neighbors if 0 <= x < self.height and 0 <= y < self.width}
+
+    def get_candidates(self, start: Node, path: FullPath) -> Set[Node]:
+        candidates = self.get_neighbors(start) - set(path)
+        return self.wall_filter(start, candidates)
+
+    def wall_filter(self, start: Node, candidates: Set[Node]) -> Set[Node]:
+        result = set()
+        old_x, old_y = start
+        for c in candidates:
+            x, y = c
+
+            # horizontal movement
+            if old_x == x:
+                miny = min(old_y, y)
+                if self.vwalls[x][miny]:
+                    result.add(c)
+
+            # vertical movement
+            else:
+                minx = min(old_x, x)
+                if self.hwalls[minx][y]:
+                    result.add(c)
+
+        return result
