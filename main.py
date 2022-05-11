@@ -1,9 +1,12 @@
 import math
+import sys
 
 import arcade
 
 import config as cfg
 from models import Maze
+
+sys.setrecursionlimit(10000)
 
 
 class Game(arcade.Window):
