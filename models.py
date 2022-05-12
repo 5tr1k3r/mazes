@@ -105,9 +105,9 @@ class Maze:
 
         return coords
 
-    def find_path(self,
-                  start: Optional[Node] = None,
-                  end: Optional[Node] = None) -> FullPath:
+    def find_path_from_x_to_y(self,
+                              start: Optional[Node] = None,
+                              end: Optional[Node] = None) -> FullPath:
         if start is None:
             start = (0, 0)
 

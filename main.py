@@ -16,7 +16,6 @@ class Game(arcade.Window):
         super().__init__(width, height, 'Mazes', center_window=True)
         self.is_generating = False
         self.is_maze_generated = False
-        self.is_path_shown = False
         arcade.set_background_color(cfg.bg_color)
         self.maze_generator = None
         self.maze_iterations_per_frame = math.ceil(cfg.maze_width * cfg.maze_height / (60 * cfg.max_generation_time))
@@ -38,7 +37,7 @@ class Game(arcade.Window):
         elif symbol == arcade.key.SPACE:
             self.generate_maze()
         elif symbol == arcade.key.ENTER:
-            self.update_path()
+            self.find_default_path()
         elif symbol == arcade.key.E:
             self.find_custom_path()
 
@@ -68,13 +67,12 @@ class Game(arcade.Window):
                     print('start and exit should be different')
                     return
 
-                self.update_path(self.custom_start, (lane_x, lane_y))
+                self.find_path(self.custom_start, (lane_x, lane_y))
                 self.stop_selecting_cell()
 
     def reset(self):
         self.is_generating = False
         self.is_maze_generated = False
-        self.is_path_shown = False
         self.maze_shape_list = arcade.ShapeElementList()
         self.path_shape_list = arcade.ShapeElementList()
         self.is_selecting_start = False
@@ -159,24 +157,22 @@ class Game(arcade.Window):
             arcade.draw_circle_filled(*self.maze.g_cells[x][y],
                                       cfg.cell_size * 0.85, cfg.path_color + (200,))
 
-    def update_path(self,
-                    start: Optional[Node] = None,
-                    end: Optional[Node] = None):
-        if self.is_maze_generated and not self.is_path_shown:
-            path = self.maze.find_path(start, end)
-            lines = arcade.create_line_strip([self.maze.g_cells[x][y] for x, y in path],
-                                             cfg.path_color, line_width=cfg.path_width)
-            self.path_shape_list.append(lines)
+    def find_path(self,
+                  start: Optional[Node] = None,
+                  end: Optional[Node] = None):
+        self.path_shape_list = arcade.ShapeElementList()
+        path = self.maze.find_path_from_x_to_y(start, end)
+        lines = arcade.create_line_strip([self.maze.g_cells[x][y] for x, y in path],
+                                         cfg.path_color, line_width=cfg.path_width)
+        self.path_shape_list.append(lines)
 
-            self.is_path_shown = True
+    def find_default_path(self):
+        if self.is_maze_generated:
+            self.find_path()
 
     def find_custom_path(self):
-        if not self.is_maze_generated:
-            return
-
-        self.path_shape_list = arcade.ShapeElementList()
-        self.is_path_shown = False
-        self.is_selecting_start = True
+        if self.is_maze_generated:
+            self.is_selecting_start = True
 
     def is_selecting_cell(self) -> bool:
         return self.is_selecting_start or self.is_selecting_exit
