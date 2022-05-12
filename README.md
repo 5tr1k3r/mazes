@@ -8,7 +8,7 @@ Hotkeys
 -------
 - `Space` - generate a maze
 - `Enter` - find a path from the bottom left to the top right corner
-- `E` - find a custom path: select start and exit with the mouse
+- `E` - select a custom path with the mouse and find the solution
 - `Esc` - quit or exit path selection mode
 
 Custom Config
