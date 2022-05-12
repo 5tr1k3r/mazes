@@ -75,35 +75,42 @@ class Maze:
 
         return w, h
 
-    def get_vertical_wall_coords(self) -> List[List[LineCoords]]:
+    def get_wall_coords(self, start_x, start_y,
+                        offset_x, offset_y, is_vertical: bool) -> List[List[LineCoords]]:
         coords = []
-        curr_y = self.bottom_left_y + cfg.wall_width
-        for j in range(self.height):
-            coords.append([])
-            curr_x = cfg.wall_width * 1.5 + cfg.cell_size
+        height = self.height
+        width = self.width
+        if is_vertical:
+            width -= 1
+        else:
+            height -= 1
 
-            for i in range(self.width - 1):
-                coords[j].append((curr_x, curr_y, curr_x, curr_y + cfg.cell_size))
+        curr_y = start_y
+        for j in range(height):
+            coords.append([])
+            curr_x = start_x
+
+            for i in range(width):
+                coords[j].append((curr_x, curr_y, curr_x + offset_x, curr_y + offset_y))
                 curr_x += cfg.cell_size + cfg.wall_width
 
             curr_y += cfg.cell_size + cfg.wall_width
 
         return coords
+
+    def get_vertical_wall_coords(self) -> List[List[LineCoords]]:
+        return self.get_wall_coords(start_x=cfg.wall_width * 1.5 + cfg.cell_size,
+                                    start_y=self.bottom_left_y + cfg.wall_width,
+                                    offset_x=0,
+                                    offset_y=cfg.cell_size,
+                                    is_vertical=True)
 
     def get_horizontal_wall_coords(self) -> List[List[LineCoords]]:
-        coords = []
-        curr_y = self.bottom_left_y + cfg.wall_width * 1.5 + cfg.cell_size
-        for j in range(self.height - 1):
-            coords.append([])
-            curr_x = cfg.wall_width
-
-            for i in range(self.width):
-                coords[j].append((curr_x, curr_y, curr_x + cfg.cell_size, curr_y))
-                curr_x += cfg.cell_size + cfg.wall_width
-
-            curr_y += cfg.cell_size + cfg.wall_width
-
-        return coords
+        return self.get_wall_coords(start_x=cfg.wall_width,
+                                    start_y=self.bottom_left_y + cfg.wall_width * 1.5 + cfg.cell_size,
+                                    offset_x=cfg.cell_size,
+                                    offset_y=0,
+                                    is_vertical=False)
 
     def find_path_from_x_to_y(self,
                               start: Optional[Node] = None,
