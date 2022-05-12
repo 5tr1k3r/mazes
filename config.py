@@ -21,6 +21,7 @@ ui_panel_height = 80
 button_width = 120
 button_height = 40
 bottom_panel_margin = 35
+min_window_width = button_width * 3 + 20
 
 bg_color = arcade.color.BLACK
 cell_color = arcade.color.WHITE

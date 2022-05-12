@@ -16,6 +16,7 @@ class Maze:
         self.grid = None
         self.vwalls = None
         self.hwalls = None
+        self.bottom_left_x = (self.get_window_width() - self.get_grid_width()) / 2
         self.bottom_left_y = cfg.ui_panel_height
         self.g_cells = self.get_cell_coords()
         self.g_vwalls = self.get_vertical_wall_coords()
@@ -33,7 +34,7 @@ class Maze:
         curr_y = self.bottom_left_y + cfg.wall_width + cfg.cell_size / 2
         for j in range(self.height):
             coords.append([])
-            curr_x = cfg.wall_width + cfg.cell_size / 2
+            curr_x = self.bottom_left_x + cfg.wall_width + cfg.cell_size / 2
 
             for i in range(self.width):
                 coords[j].append((curr_x, curr_y))
@@ -70,10 +71,9 @@ class Maze:
             queue += temp_queue
 
     def get_window_dimensions(self) -> Tuple[int, int]:
-        w = (cfg.cell_size + cfg.wall_width) * self.width + cfg.wall_width
         h = (cfg.cell_size + cfg.wall_width) * self.height + cfg.wall_width + self.bottom_left_y
 
-        return w, h
+        return self.get_window_width(), h
 
     def get_wall_coords(self, start_x, start_y,
                         offset_x, offset_y, is_vertical: bool) -> List[List[LineCoords]]:
@@ -99,14 +99,14 @@ class Maze:
         return coords
 
     def get_vertical_wall_coords(self) -> List[List[LineCoords]]:
-        return self.get_wall_coords(start_x=cfg.wall_width * 1.5 + cfg.cell_size,
+        return self.get_wall_coords(start_x=self.bottom_left_x + cfg.wall_width * 1.5 + cfg.cell_size,
                                     start_y=self.bottom_left_y + cfg.wall_width,
                                     offset_x=0,
                                     offset_y=cfg.cell_size,
                                     is_vertical=True)
 
     def get_horizontal_wall_coords(self) -> List[List[LineCoords]]:
-        return self.get_wall_coords(start_x=cfg.wall_width,
+        return self.get_wall_coords(start_x=self.bottom_left_x + cfg.wall_width,
                                     start_y=self.bottom_left_y + cfg.wall_width * 1.5 + cfg.cell_size,
                                     offset_x=cfg.cell_size,
                                     offset_y=0,
@@ -177,3 +177,9 @@ class Maze:
                     result.add(c)
 
         return result
+
+    def get_grid_width(self) -> int:
+        return (cfg.cell_size + cfg.wall_width) * self.width + cfg.wall_width
+
+    def get_window_width(self) -> int:
+        return max(self.get_grid_width(), cfg.min_window_width)
