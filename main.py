@@ -44,12 +44,19 @@ class Game(arcade.Window):
 
     def update_maze(self):
         if self.is_generating:
-            try:
-                for _ in range(self.maze_iterations_per_frame):
-                    old_x, old_y, x, y = next(self.maze_generator)
+            if cfg.visualize_generation:
+                try:
+                    for _ in range(self.maze_iterations_per_frame):
+                        old_x, old_y, x, y = next(self.maze_generator)
+                        self.update_cell(old_x, old_y, x, y)
+
+                except StopIteration:
+                    self.is_generating = False
+                    self.is_maze_generated = True
+            else:
+                for old_x, old_y, x, y in self.maze_generator:
                     self.update_cell(old_x, old_y, x, y)
 
-            except StopIteration:
                 self.is_generating = False
                 self.is_maze_generated = True
 
