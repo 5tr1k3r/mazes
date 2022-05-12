@@ -32,6 +32,8 @@ class Game(arcade.Window):
         self.ui.enable()
         self.bottom_ui_panel = arcade.gui.UIBoxLayout(vertical=False)
         self.add_ui_buttons()
+        self.mouse_x = 0
+        self.mouse_y = 0
 
     def on_key_press(self, symbol: int, modifiers: int):
         if self.is_selecting_cell():
@@ -56,6 +58,7 @@ class Game(arcade.Window):
         self.draw_path()
         self.draw_start_marker()
         self.ui.draw()
+        self.draw_selection_cursor()
         self.draw_select_cell_text()
         self.show_fps()
 
@@ -78,14 +81,16 @@ class Game(arcade.Window):
                 self.find_path(self.custom_start, (lane_x, lane_y))
                 self.stop_selecting_cell()
 
+    def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
+        self.mouse_x = x
+        self.mouse_y = y
+
     def reset(self):
         self.is_generating = False
         self.is_maze_generated = False
         self.maze_shape_list = arcade.ShapeElementList()
         self.path_shape_list = arcade.ShapeElementList()
-        self.is_selecting_start = False
-        self.is_selecting_exit = False
-        self.custom_start = None
+        self.stop_selecting_cell()
 
     def add_ui_buttons(self):
         buttons = {
@@ -182,7 +187,11 @@ class Game(arcade.Window):
         if self.is_selecting_exit and self.custom_start is not None:
             x, y = self.custom_start
             arcade.draw_circle_filled(*self.maze.g_cells[x][y],
-                                      cfg.cell_size * 0.85, cfg.path_color + (200,))
+                                      cfg.cursor_radius, cfg.cursor_color)
+
+    def draw_selection_cursor(self):
+        if self.is_selecting_cell():
+            arcade.draw_circle_filled(self.mouse_x, self.mouse_y, cfg.cursor_radius, cfg.cursor_color)
 
     def find_path(self,
                   start: Optional[Node] = None,
@@ -200,6 +209,7 @@ class Game(arcade.Window):
     def select_custom_path(self, _event=None):
         if self.is_maze_generated and not self.is_selecting_cell():
             self.is_selecting_start = True
+            self.set_mouse_visible(False)
 
     def is_selecting_cell(self) -> bool:
         return self.is_selecting_start or self.is_selecting_exit
@@ -208,6 +218,7 @@ class Game(arcade.Window):
         self.is_selecting_start = False
         self.is_selecting_exit = False
         self.custom_start = None
+        self.set_mouse_visible(True)
 
     def select_cell(self, mouse_x: float, mouse_y: float) -> Tuple[int, int]:
         low_dist = float('inf')
