@@ -143,6 +143,8 @@ class Maze:
 
             if path[-1] == end:
                 yield path
+                if not cfg.find_shortest_path:
+                    return
 
             seen.add(cell)
             for candidate in self.get_candidates(cell, path):
