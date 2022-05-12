@@ -138,18 +138,13 @@ class Maze:
 
     def dfs_paths(self, start: Node, end: Node):
         queue = [(start, [start])]
-        seen = set()
         while queue:
             cell, path = queue.pop()
-            if cell in seen:
-                continue
-
             if path[-1] == end:
                 yield path
                 if not cfg.find_shortest_path:
                     return
 
-            seen.add(cell)
             for candidate in self.get_candidates(cell, path):
                 queue.append((candidate, path + [candidate]))
 
