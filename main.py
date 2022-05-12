@@ -103,7 +103,7 @@ class Game(arcade.Window):
     def show_fps():
         # Get FPS for the last 60 frames
         text = f"FPS: {arcade.get_fps(60):5.1f}"
-        arcade.draw_text(text, 10, 10, arcade.color.SMOKY_BLACK, 22)
+        arcade.draw_text(text, 10, 10, arcade.color.WHITE, 22)
 
     def update_path(self):
         if self.is_maze_generated and not self.is_path_shown:
