@@ -47,8 +47,7 @@ class Game(arcade.Window):
         self.draw_maze()
         self.draw_path()
         self.draw_start_marker()
-        self.draw_select_start_text()
-        self.draw_select_exit_text()
+        self.draw_select_cell_text()
         self.show_fps()
 
     def on_update(self, delta_time: float):
@@ -141,15 +140,17 @@ class Game(arcade.Window):
         text = f"FPS: {arcade.get_fps(60):5.1f}"
         arcade.draw_text(text, 10, 10, arcade.color.WHITE, 12)
 
-    def draw_select_start_text(self):
-        if self.is_selecting_start:
-            arcade.draw_text('Selecting start', self.width / 2, 10, arcade.color.WHITE, 16,
-                             anchor_x='center', anchor_y='baseline')
+    def draw_select_cell_text(self):
+        if not self.is_selecting_cell():
+            return
 
-    def draw_select_exit_text(self):
-        if self.is_selecting_exit:
-            arcade.draw_text('Selecting exit', self.width / 2, 10, arcade.color.WHITE, 16,
-                             anchor_x='center', anchor_y='baseline')
+        if self.is_selecting_start:
+            target = 'start'
+        else:
+            target = 'exit'
+
+        arcade.draw_text(f'Selecting {target}', self.width / 2, 10, arcade.color.WHITE, 16,
+                         anchor_x='center', anchor_y='baseline')
 
     def draw_start_marker(self):
         if self.is_selecting_exit and self.custom_start is not None:
