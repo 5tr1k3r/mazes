@@ -7,6 +7,7 @@ import config as cfg
 from models import Maze
 
 sys.setrecursionlimit(10000)
+arcade.enable_timings()
 
 
 class Game(arcade.Window):
@@ -20,6 +21,7 @@ class Game(arcade.Window):
         self.maze_generator = None
         self.path = None
         self.maze_iterations_per_frame = math.ceil(cfg.maze_width * cfg.maze_height / (60 * cfg.max_generation_time))
+        self.maze_shape_list = arcade.ShapeElementList()
 
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == arcade.key.ESCAPE:
@@ -32,8 +34,10 @@ class Game(arcade.Window):
 
     def on_draw(self):
         self.clear()
+
         self.draw_maze()
         self.draw_path()
+        self.show_fps()
 
     def on_update(self, delta_time: float):
         self.update_maze()
@@ -43,14 +47,40 @@ class Game(arcade.Window):
             try:
                 for _ in range(self.maze_iterations_per_frame):
                     old_x, old_y, x, y = next(self.maze_generator)
-                    self.maze.remove_wall(old_x, old_y, x, y)
-                    self.maze.grid[x][y] = True
+                    self.update_cell(old_x, old_y, x, y)
+
             except StopIteration:
                 self.is_generating = False
                 self.is_maze_generated = True
 
+    def update_cell(self, old_x: int, old_y: int, x: int, y: int):
+        self.maze.grid[x][y] = True
+        rect = arcade.create_rectangle_filled(*self.maze.g_cells[x][y],
+                                              cfg.cell_size, cfg.cell_size, cfg.cell_color)
+        self.maze_shape_list.append(rect)
+
+        if old_x == x and old_y == y:
+            return
+
+        # vertical wall
+        if old_x == x:
+            miny = min(old_y, y)
+            self.maze.vwalls[x][miny] = True
+            line = arcade.create_line(*self.maze.g_vwalls[x][miny],
+                                      cfg.cell_color, cfg.wall_width)
+
+        # horizontal wall
+        else:
+            minx = min(old_x, x)
+            self.maze.hwalls[minx][y] = True
+            line = arcade.create_line(*self.maze.g_hwalls[minx][y],
+                                      cfg.cell_color, cfg.wall_width)
+
+        self.maze_shape_list.append(line)
+
     def generate_maze(self):
         if not self.is_generating:
+            self.maze_shape_list = arcade.ShapeElementList()
             self.maze.reset_grid()
             self.is_generating = True
             self.maze_generator = self.maze.generate_with_dfs()
@@ -58,29 +88,18 @@ class Game(arcade.Window):
             self.is_maze_generated = False
 
     def draw_maze(self):
-        # todo improve
-        for i, row in enumerate(self.maze.grid):
-            for j, cell in enumerate(row):
-                if cell:
-                    arcade.draw_rectangle_filled(*self.maze.g_cells[i][j],
-                                                 cfg.cell_size, cfg.cell_size, cfg.cell_color)
-
-        for i, row in enumerate(self.maze.vwalls):
-            for j, wall in enumerate(row):
-                if wall:
-                    arcade.draw_line(*self.maze.g_vwalls[i][j],
-                                     cfg.cell_color, cfg.wall_width)
-
-        for i, row in enumerate(self.maze.hwalls):
-            for j, wall in enumerate(row):
-                if wall:
-                    arcade.draw_line(*self.maze.g_hwalls[i][j],
-                                     cfg.cell_color, cfg.wall_width)
+        self.maze_shape_list.draw()
 
     def draw_path(self):
         if self.path is not None:
             arcade.draw_line_strip([self.maze.g_cells[x][y] for x, y in self.path],
                                    cfg.path_color, line_width=cfg.path_width)
+
+    @staticmethod
+    def show_fps():
+        # Get FPS for the last 60 frames
+        text = f"FPS: {arcade.get_fps(60):5.1f}"
+        arcade.draw_text(text, 10, 10, arcade.color.GRAY, 22)
 
 
 def main():

@@ -74,20 +74,6 @@ class Maze:
 
         return w, h
 
-    def remove_wall(self, old_x: int, old_y: int, x: int, y: int):
-        if old_x == x and old_y == y:
-            return
-
-        # vertical wall
-        if old_x == x:
-            miny = min(old_y, y)
-            self.vwalls[x][miny] = True
-
-        # horizontal wall
-        elif old_y == y:
-            minx = min(old_x, x)
-            self.hwalls[minx][y] = True
-
     def get_vertical_wall_coords(self) -> List[List[LineCoords]]:
         coords = []
         curr_y = cfg.wall_width
