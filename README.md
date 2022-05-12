@@ -1,8 +1,15 @@
+Requirements
+------------
+- Python 3.9
+- [arcade](https://pypi.org/project/arcade/)
+- [toml](https://pypi.org/project/toml/)
+
 Hotkeys
 -------
 - `Space` - generate a maze
-- `Enter` - find a path
-- `Esc` - quit
+- `Enter` - find a path from the bottom left to the top right corner
+- `E` - find a custom path: select start and exit with the mouse
+- `Esc` - quit or exit path selection mode
 
 Custom Config
 --------------
