@@ -1,4 +1,5 @@
 import random
+import time
 from typing import List, Tuple, Optional, Set
 
 import config as cfg
@@ -121,15 +122,17 @@ class Maze:
         if end is None:
             end = (self.height - 1, self.width - 1)
 
-        # currently there will only be one path that is produced
-        # but decided to kinda future-proof it
-        # and look for the shortest path anyway
+        time_start = time.perf_counter()
+
         shortest_path = []
         shortest_path_length = float('inf')
         for path in self.dfs_paths(start, end):
             if len(path) < shortest_path_length:
                 shortest_path_length = len(path)
                 shortest_path = path
+
+        time_taken = time.perf_counter() - time_start
+        print(f'DFS pathfinding took {time_taken:.2f}s')
 
         return shortest_path
 
