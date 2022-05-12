@@ -16,6 +16,7 @@ path_width = cc.get('path_width', 8)
 max_generation_time = cc.get('max_generation_time', 5.0)
 visualize_generation = cc.get('visualize_generation', True)
 ui_panel_height = cc.get('ui_panel_height', 50)
+fps_is_shown = cc.get('fps_is_shown', False)
 
 bg_color = arcade.color.BLACK
 cell_color = arcade.color.WHITE

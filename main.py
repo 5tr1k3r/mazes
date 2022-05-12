@@ -136,9 +136,10 @@ class Game(arcade.Window):
 
     @staticmethod
     def show_fps():
-        # Get FPS for the last 60 frames
-        text = f"FPS: {arcade.get_fps(60):5.1f}"
-        arcade.draw_text(text, 10, 10, arcade.color.WHITE, 12)
+        if cfg.fps_is_shown:
+            # Get FPS for the last 60 frames
+            text = f"FPS: {arcade.get_fps(60):5.1f}"
+            arcade.draw_text(text, 10, 10, arcade.color.WHITE, 12)
 
     def draw_select_cell_text(self):
         if not self.is_selecting_cell():
