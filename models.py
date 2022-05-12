@@ -125,14 +125,20 @@ class Maze:
 
         return shortest_path
 
-    def dfs_paths(self, start: Node, end: Node, path=None):
-        if path is None:
-            path = [start]
-        if path[-1] == end:
-            yield path
-            return
-        for field in self.get_candidates(start, path):
-            yield from self.dfs_paths(field, end, path + [field])
+    def dfs_paths(self, start: Node, end: Node):
+        queue = [(start, [start])]
+        seen = set()
+        while queue:
+            cell, path = queue.pop()
+            if cell in seen:
+                continue
+
+            if path[-1] == end:
+                yield path
+
+            seen.add(cell)
+            for candidate in self.get_candidates(cell, path):
+                queue.append((candidate, path + [candidate]))
 
     def get_neighbors(self, node: Node) -> Set[Node]:
         x, y = node
