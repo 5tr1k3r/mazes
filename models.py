@@ -16,6 +16,7 @@ class Maze:
         self.grid = None
         self.vwalls = None
         self.hwalls = None
+        self.bottom_left_y = cfg.ui_panel_height
         self.g_cells = self.get_cell_coords()
         self.g_vwalls = self.get_vertical_wall_coords()
         self.g_hwalls = self.get_horizontal_wall_coords()
@@ -29,7 +30,7 @@ class Maze:
 
     def get_cell_coords(self) -> List[List[Coords]]:
         coords = []
-        curr_y = cfg.wall_width + cfg.cell_size / 2
+        curr_y = self.bottom_left_y + cfg.wall_width + cfg.cell_size / 2
         for j in range(self.height):
             coords.append([])
             curr_x = cfg.wall_width + cfg.cell_size / 2
@@ -70,13 +71,13 @@ class Maze:
 
     def get_window_dimensions(self) -> Tuple[int, int]:
         w = (cfg.cell_size + cfg.wall_width) * self.width + cfg.wall_width
-        h = (cfg.cell_size + cfg.wall_width) * self.height + cfg.wall_width
+        h = (cfg.cell_size + cfg.wall_width) * self.height + cfg.wall_width + self.bottom_left_y
 
         return w, h
 
     def get_vertical_wall_coords(self) -> List[List[LineCoords]]:
         coords = []
-        curr_y = cfg.wall_width
+        curr_y = self.bottom_left_y + cfg.wall_width
         for j in range(self.height):
             coords.append([])
             curr_x = cfg.wall_width * 1.5 + cfg.cell_size
@@ -91,7 +92,7 @@ class Maze:
 
     def get_horizontal_wall_coords(self) -> List[List[LineCoords]]:
         coords = []
-        curr_y = cfg.wall_width * 1.5 + cfg.cell_size
+        curr_y = self.bottom_left_y + cfg.wall_width * 1.5 + cfg.cell_size
         for j in range(self.height - 1):
             coords.append([])
             curr_x = cfg.wall_width
