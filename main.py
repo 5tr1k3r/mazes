@@ -15,11 +15,12 @@ class Game(arcade.Window):
         super().__init__(width, height, 'Mazes', center_window=True)
         self.is_generating = False
         self.is_maze_generated = False
+        self.is_path_shown = False
         arcade.set_background_color(cfg.bg_color)
         self.maze_generator = None
-        self.path = None
         self.maze_iterations_per_frame = math.ceil(cfg.maze_width * cfg.maze_height / (60 * cfg.max_generation_time))
         self.maze_shape_list = arcade.ShapeElementList()
+        self.path_shape_list = arcade.ShapeElementList()
 
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == arcade.key.ESCAPE:
@@ -27,8 +28,7 @@ class Game(arcade.Window):
         elif symbol == arcade.key.SPACE:
             self.generate_maze()
         elif symbol == arcade.key.ENTER:
-            if self.is_maze_generated:
-                self.path = self.maze.find_path()
+            self.update_path()
 
     def on_draw(self):
         self.clear()
@@ -86,25 +86,33 @@ class Game(arcade.Window):
     def generate_maze(self):
         if not self.is_generating:
             self.maze_shape_list = arcade.ShapeElementList()
+            self.path_shape_list = arcade.ShapeElementList()
             self.maze.reset_grid()
             self.is_generating = True
             self.maze_generator = self.maze.generate_with_dfs()
-            self.path = None
             self.is_maze_generated = False
+            self.is_path_shown = False
 
     def draw_maze(self):
         self.maze_shape_list.draw()
 
     def draw_path(self):
-        if self.path is not None:
-            arcade.draw_line_strip([self.maze.g_cells[x][y] for x, y in self.path],
-                                   cfg.path_color, line_width=cfg.path_width)
+        self.path_shape_list.draw()
 
     @staticmethod
     def show_fps():
         # Get FPS for the last 60 frames
         text = f"FPS: {arcade.get_fps(60):5.1f}"
         arcade.draw_text(text, 10, 10, arcade.color.SMOKY_BLACK, 22)
+
+    def update_path(self):
+        if self.is_maze_generated and not self.is_path_shown:
+            path = self.maze.find_path()
+            lines = arcade.create_line_strip([self.maze.g_cells[x][y] for x, y in path],
+                                             cfg.path_color, line_width=cfg.path_width)
+            self.path_shape_list.append(lines)
+
+            self.is_path_shown = True
 
 
 def main():
