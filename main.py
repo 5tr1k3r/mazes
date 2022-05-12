@@ -2,6 +2,7 @@ import math
 from typing import Tuple, Optional
 
 import arcade
+import arcade.gui
 
 import config as cfg
 from models import Maze, Node
@@ -14,16 +15,23 @@ class Game(arcade.Window):
         self.maze = Maze(cfg.maze_width, cfg.maze_height)
         width, height = self.maze.get_window_dimensions()
         super().__init__(width, height, 'Mazes', center_window=True)
+
         self.is_generating = False
         self.is_maze_generated = False
-        arcade.set_background_color(cfg.bg_color)
-        self.maze_generator = None
-        self.maze_iterations_per_frame = math.ceil(cfg.maze_width * cfg.maze_height / (60 * cfg.max_generation_time))
         self.maze_shape_list = arcade.ShapeElementList()
         self.path_shape_list = arcade.ShapeElementList()
         self.is_selecting_start = False
         self.is_selecting_exit = False
         self.custom_start = None
+
+        arcade.set_background_color(cfg.bg_color)
+        self.maze_generator = None
+        self.maze_iterations_per_frame = math.ceil(cfg.maze_width * cfg.maze_height / (60 * cfg.max_generation_time))
+
+        self.ui = arcade.gui.UIManager()
+        self.ui.enable()
+        self.bottom_ui_panel = arcade.gui.UIBoxLayout(vertical=False)
+        self.add_ui_buttons()
 
     def on_key_press(self, symbol: int, modifiers: int):
         if self.is_selecting_cell():
@@ -39,7 +47,7 @@ class Game(arcade.Window):
         elif symbol == arcade.key.ENTER:
             self.find_default_path()
         elif symbol == arcade.key.E:
-            self.find_custom_path()
+            self.select_custom_path()
 
     def on_draw(self):
         self.clear()
@@ -47,6 +55,7 @@ class Game(arcade.Window):
         self.draw_maze()
         self.draw_path()
         self.draw_start_marker()
+        self.ui.draw()
         self.draw_select_cell_text()
         self.show_fps()
 
@@ -77,6 +86,22 @@ class Game(arcade.Window):
         self.is_selecting_start = False
         self.is_selecting_exit = False
         self.custom_start = None
+
+    def add_ui_buttons(self):
+        buttons = {
+            'Generate': self.generate_maze,
+            'Find path': self.find_default_path,
+            'Select path': self.select_custom_path
+        }
+
+        for text, func in buttons.items():
+            button = arcade.gui.UIFlatButton(text=text, width=cfg.button_width, height=cfg.button_height)
+            self.bottom_ui_panel.add(button)
+            button.on_click = func
+
+        self.ui.add(arcade.gui.UIAnchorWidget(anchor_x='center', anchor_y='bottom',
+                                              align_y=cfg.bottom_panel_margin,
+                                              child=self.bottom_ui_panel))
 
     def update_maze(self):
         if self.is_generating:
@@ -121,8 +146,8 @@ class Game(arcade.Window):
 
         self.maze_shape_list.append(line)
 
-    def generate_maze(self):
-        if not self.is_generating:
+    def generate_maze(self, _event=None):
+        if not self.is_generating and not self.is_selecting_cell():
             self.reset()
             self.maze.reset_grid()
             self.is_generating = True
@@ -168,12 +193,12 @@ class Game(arcade.Window):
                                          cfg.path_color, line_width=cfg.path_width)
         self.path_shape_list.append(lines)
 
-    def find_default_path(self):
-        if self.is_maze_generated:
+    def find_default_path(self, _event=None):
+        if self.is_maze_generated and not self.is_selecting_cell():
             self.find_path()
 
-    def find_custom_path(self):
-        if self.is_maze_generated:
+    def select_custom_path(self, _event=None):
+        if self.is_maze_generated and not self.is_selecting_cell():
             self.is_selecting_start = True
 
     def is_selecting_cell(self) -> bool:

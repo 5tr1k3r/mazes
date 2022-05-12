@@ -15,8 +15,12 @@ wall_width = cc.get('wall_width', 5)
 path_width = cc.get('path_width', 8)
 max_generation_time = cc.get('max_generation_time', 5.0)
 visualize_generation = cc.get('visualize_generation', True)
-ui_panel_height = cc.get('ui_panel_height', 50)
 fps_is_shown = cc.get('fps_is_shown', False)
+
+ui_panel_height = 80
+button_width = 120
+button_height = 40
+bottom_panel_margin = 35
 
 bg_color = arcade.color.BLACK
 cell_color = arcade.color.WHITE
