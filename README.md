@@ -9,6 +9,9 @@ Hotkeys
 - `Space` - generate a maze
 - `Enter` - find a path from the bottom left to the top right corner
 - `E` - select a custom path with the mouse and find the solution
+- `B` - break the remaining walls with 10% chance per wall (configurable).
+Warning: in most cases makes pathfinding *significantly* slower,
+especially if you're looking for the shortest path.
 - `Esc` - quit or exit path selection mode
 
 Custom Config

@@ -1,4 +1,5 @@
 import math
+import random
 from typing import Tuple, Optional
 
 import arcade
@@ -50,6 +51,8 @@ class Game(arcade.Window):
             self.find_default_path()
         elif symbol == arcade.key.E:
             self.select_custom_path()
+        elif symbol == arcade.key.B:
+            self.break_some_walls()
 
     def on_draw(self):
         self.clear()
@@ -234,6 +237,22 @@ class Game(arcade.Window):
                     low_y = j
 
         return low_x, low_y
+
+    def break_some_walls(self):
+        if not self.is_maze_generated:
+            return
+
+        self.break_wall_type(self.maze.vwalls, self.maze.g_vwalls)
+        self.break_wall_type(self.maze.hwalls, self.maze.g_hwalls)
+
+    def break_wall_type(self, walls, gwalls):
+        for i, row in enumerate(walls):
+            for j, wall in enumerate(row):
+                if not wall and random.random() < cfg.wall_break_chance:
+                    walls[i][j] = True
+                    line = arcade.create_line(*gwalls[i][j],
+                                              cfg.cell_color, cfg.wall_width)
+                    self.maze_shape_list.append(line)
 
 
 def main():

@@ -16,6 +16,7 @@ path_width = cc.get('path_width', 8)
 max_generation_time = cc.get('max_generation_time', 5.0)
 visualize_generation = cc.get('visualize_generation', True)
 fps_is_shown = cc.get('fps_is_shown', False)
+wall_break_chance = cc.get('wall_break_chance', 0.1)
 
 # warning: making it True will worsen performance drastically
 find_shortest_path = cc.get('find_shortest_path', False)
